@@ -33,7 +33,9 @@ class UserCard extends Component {
     renderChild: false,
     currentPage: 1,
     friendsPerPage: 5,
-    currentFriends: null
+    currentFriends: null,
+    searchTerm: '',
+    searchData: null
   };
 
   nextPage = () => {
@@ -56,10 +58,42 @@ class UserCard extends Component {
         this.nextPage();
       });
   };
+
+  searchUser = e => {
+    e.preventDefault();
+    axios
+      .get(`https://api.github.com/users/${this.state.searchTerm}`)
+      .then(res => this.setState({ searchData: res.data, renderChild: true }));
+  };
+
   render() {
     const { data } = this.props;
     return (
       <Div>
+        <input
+          type="text"
+          placeholder="Search for a User"
+          style={{ marginLeft: '-400px' }}
+          onChange={e => this.setState({ searchTerm: e.target.value })}
+        />
+        <input
+          type="submit"
+          style={{ marginLeft: '-400px' }}
+          onClick={this.searchUser}
+        />
+
+        {this.state.searchData && (
+          <>
+            <img src={this.state.searchData.avatar_url} />
+            <div>{this.state.searchData.name}</div>
+            <div>{this.state.searchData.location}</div>
+            <div>{this.state.searchData.bio}</div>
+            <div>Followers: {this.state.searchData.followers}</div>
+            <div>Following: {this.state.searchData.following}</div>
+            <button onClick={this.handleClick}>View Followers</button>
+          </>
+        )}
+
         {!this.state.renderChild && (
           <>
             <img src={data.avatar_url} />
